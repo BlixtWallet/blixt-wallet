@@ -20,7 +20,7 @@ Feature parity is explicitly deferred.
 
 ## Build Status
 
-The Windows project now uses `react-native 0.84.1`, `react-native-windows 0.84.0`, and React `19.2.3`. A Debug x64 build and MSIX package completed successfully on 2026-07-16 with Visual Studio 2026 `18.7` and the generated `v145` toolset defaults. The 0.84 app starts and reaches the main UI. The normal `bun run windows` command was also confirmed working without `--singleproc` on 2026-07-27.
+The Windows project now uses `react-native 0.85.3`, `react-native-windows 0.85.0-preview.1`, and React `19.2.3`. A Debug x64 build, MSIX package, deployment, and launch completed successfully on 2026-07-28 with Visual Studio 2026 `18.7` and the generated `v145` toolset defaults. The app starts and reaches the main UI. The normal `bun run windows` command was also confirmed working without `--singleproc` on 2026-07-27.
 
 The main class of native-package failures seen during bring-up was:
 
@@ -28,9 +28,9 @@ The main class of native-package failures seen during bring-up was:
 
 This has shown up in third-party Windows projects that appear older than the current RNW/WinAppSDK expectations. The current app works around those packages by disabling Windows autolinking, using Metro shims, or temporarily suppressing the WinAppSDK verifier where noted below.
 
-### RNW 0.84 on Visual Studio 2026
+### RNW 0.85 preview on Visual Studio 2026
 
-RNW 0.84's CLI requires Visual Studio `18.6+`, and its generated C++ app template declares `PlatformToolset=v145`. The current environment uses Visual Studio 2026 `18.7` with the C++ WinUI app development tools and `v145` toolset installed.
+RNW 0.85's CLI requires Visual Studio `18.6.1+`, and its generated C++ app template declares `PlatformToolset=v145`. The current environment uses Visual Studio 2026 `18.7` with the C++ WinUI app development tools and `v145` toolset installed.
 
 The `windows` package script intentionally leaves toolchain selection and MSBuild process concurrency at RNW's defaults:
 
@@ -55,7 +55,7 @@ These packages are currently disabled for Windows in `react-native.config.js`:
   App handling: Windows Metro resolves imports to `src/shims/slider.windows.tsx`. This keeps fee-rate entry working through the existing numeric text inputs while using a lightweight visual placeholder instead of the native slider.
 
 - `react-native-screens`
-  Reason: the package's Windows project was incompatible with the new-architecture bring-up under RNW `0.82.x`; it has not yet been revalidated after the RNW 0.84 upgrade.
+  Reason: the package's Windows project was incompatible with the new-architecture bring-up under RNW `0.82.x`; it has not yet been revalidated against the current RNW 0.85 preview.
   App handling: Windows autolinking is disabled and `index.js` calls `enableScreens(Platform.OS !== "windows")` so React Navigation falls back to non-native screen containers on Windows.
 
 - `react-native-webview`
@@ -83,7 +83,7 @@ Screen modules and navigation routes remain statically imported and registered o
 - `@react-native-community/geolocation` and `react-native-maps` resolve to explicit Windows fallbacks. Geolocation reports `POSITION_UNAVAILABLE`, and map UI remains hidden until a Windows map implementation exists.
 - `react-native-vision-camera` resolves to `src/shims/react-native-vision-camera.windows.tsx`. Camera routes remain statically registered, but the shim reports no camera device or permission and the scan/Send entry points are hidden on Windows.
 - `react-native-drawer-layout` resolves to `src/shims/react-native-drawer-layout.windows.tsx`. The local drawer opens and closes without gestures or animation, avoiding the package's `.native` implementation and its module-scope Reanimated/Worklets imports.
-- `index.js` imports the platform-resolved `src/shims/gesture-handler` bootstrap. The Windows variant is empty because Gesture Handler's root module probes a bridgeless `UIManager` API that RNW 0.84 rejects even though the package includes a Windows no-op native-module file. React Navigation's stack resolves its own generic no-gesture adapter on Windows.
+- `index.js` imports the platform-resolved `src/shims/gesture-handler` bootstrap. The Windows variant is empty because Gesture Handler's root module probes a bridgeless `UIManager` API that RNW rejects even though the package includes a Windows no-op native-module file. React Navigation's stack resolves its own generic no-gesture adapter on Windows.
 - `react-native-nitro-tor` resolves to `src/shims/react-native-nitro-tor.windows.ts`, which returns an explicit unsupported result if Tor is enabled on Windows.
 - `react-native-turbo-lnd` root imports resolve to `react-native-turbo-lnd/mock`, and the Windows `NativeBlixtTools` adapter defaults `Flavor` to `fakelnd`. The package's native Windows project remains autolinked and builds against the fetched x64 DLL, but the current JS runtime does not start native `lnd`.
 - `src/utils/push-notification.windows.ts` prevents developer-command screens from eagerly loading Notifee on Windows.
@@ -170,7 +170,7 @@ Reason:
 - Microsoft's recommended mitigations for this class of PCH failures are x64 hosted tools and reducing the combined MSBuild `/m` plus compiler `/MP` concurrency
 - `--singleproc` only reduces MSBuild project concurrency; it does not help if `cl.exe` still uses `/MP`
 - the earlier CI-style `/MP` setting was still too aggressive for this build, so compiler-level parallelism is now disabled
-- the RNW 0.84 NuGet-based build also succeeds with these conservative compiler settings and without `--singleproc`; their necessity should be re-evaluated separately before removing them
+- the RNW 0.85 preview NuGet-based build also succeeds with these conservative compiler settings and without `--singleproc`; their necessity should be re-evaluated separately before removing them
 
 ### Microsoft.ReactNative PCH fallback
 
@@ -213,11 +213,11 @@ Reason:
 
 The earlier `react-native 0.85.x` vs `react-native-windows 0.82.x` `ReactCommon` mismatch is gone. The current aligned framework set is:
 
-- `react-native 0.84.1`
-- `react-native-windows 0.84.0`
+- `react-native 0.85.3`
+- `react-native-windows 0.85.0-preview.1`
 - React `19.2.3`
 
-The packaged 0.82 app started and reached JS. The 0.84 Debug x64 app now builds, packages, starts, and reaches the main UI with VS 2026/v145.
+The packaged 0.82 app started and reached JS. The 0.85 Debug x64 app now builds, packages, deploys, starts, and reaches the main UI with VS 2026/v145.
 
 The current JS-side issue that showed up after startup was a Metro resolver recursion:
 
@@ -241,7 +241,7 @@ The current Windows target is suitable for bring-up and UI work, not for a funde
 
 - **Secure randomness is not guaranteed.** `src/turbomodules/NativeBlixtTools.windows.ts` uses `crypto.getRandomValues` when present but falls back to `Math.random()`. That fallback can feed wallet-password generation and is not cryptographically secure. A native CSPRNG, or a hard failure when a verified CSPRNG is unavailable, is required before release.
 
-- **Windows JavaScript tests are not configured.** The attempted `@rnx-kit/jest-preset` setup requires `@react-native/jest-preset >=0.85`, while this app is pinned to React Native `0.84.1`, and the repo has no top-level Jest runner. The nonfunctional `test:windows` command and config were removed. Add a runner/preset combination compatible with RN 0.84 before relying on Windows unit tests.
+- **Windows JavaScript tests are not configured.** The repo has no top-level Jest runner, and the earlier nonfunctional `test:windows` command and config were removed. React Native 0.85 now satisfies `@rnx-kit/jest-preset`'s React Native preset requirement, but a working runner and Windows-specific configuration still need to be added and validated.
 
 Manual 24-word recovery-phrase restore is enabled on Windows. Channel-backup files and `channel.db` import remain hidden because those paths still require the deferred document picker and filesystem work.
 

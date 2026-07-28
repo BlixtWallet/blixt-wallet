@@ -1,6 +1,6 @@
 # Windows Reanimated / Worklets Follow-up
 
-Last verified: 2026-07-27
+Last verified: 2026-07-28
 
 ## Current Conclusion
 
@@ -9,8 +9,8 @@ them.
 
 The installed versions are:
 
-- `react-native`: `0.84.1`
-- `react-native-windows`: `0.84.0`
+- `react-native`: `0.85.3`
+- `react-native-windows`: `0.85.0-preview.1`
 - `react-native-reanimated`: `4.3.0`
 - `react-native-worklets`: `0.8.1`
 
@@ -74,8 +74,10 @@ React Native Windows Metro resolution selects those native siblings when no
 eventually reaches the native Worklets implementation, for which no Windows
 native module is registered.
 
-This is the working diagnosis from the local RNW 0.84 bundle. It needs a minimal
-upstream reproduction before being reported as a Worklets bug.
+This diagnosis was established from the local RNW 0.84 bundle. The current RNW
+0.85 preview app still avoids the import chain through the drawer shim, so the
+failure needs a minimal upstream reproduction before being reported as a
+Worklets bug.
 
 ## Why The Web Drawer Is Not A Drop-In Fix
 
@@ -88,7 +90,7 @@ The current app-level drawer shim remains the smallest honest workaround.
 
 ## Follow-Up Plan
 
-1. Create a minimal RNW 0.84 app with Reanimated 4 and Worklets, first importing
+1. Create a minimal RNW 0.85 app with Reanimated 4 and Worklets, first importing
    Worklets directly and then through `react-native-drawer-layout`.
 2. Confirm the exact Metro resolution chain without app aliases.
 3. Test explicit `*.windows.js` Worklets/Reanimated entrypoints that re-export

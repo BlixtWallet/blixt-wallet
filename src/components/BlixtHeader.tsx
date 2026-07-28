@@ -65,6 +65,8 @@ export default function BlixtHeader(props: any) {
 const styles = StyleSheet.create({
   windowsGradientOverlay: {
     ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
   },
   windowsGradientRow: {
     flex: 1,

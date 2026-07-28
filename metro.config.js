@@ -4,11 +4,19 @@ const { resolve } = require("metro-resolver");
 const fs = require("fs");
 const path = require("node:path");
 
-const rnwPath = fs.realpathSync(
-  path.resolve(require.resolve("react-native-windows/package.json"), ".."),
+// Metro's file map is case-sensitive even when the Windows filesystem is not.
+const normalizePathDrive = (resolvedPath) => {
+  if (process.platform === "win32" && resolvedPath.length >= 2 && resolvedPath[1] === ":") {
+    return process.cwd()[0] + resolvedPath.slice(1);
+  }
+  return resolvedPath;
+};
+
+const rnwPath = normalizePathDrive(
+  fs.realpathSync(path.resolve(require.resolve("react-native-windows/package.json"), "..")),
 );
-const rnviPath = fs.realpathSync(
-  path.resolve(require.resolve("react-native-vector-icons/package.json"), ".."),
+const rnviPath = normalizePathDrive(
+  fs.realpathSync(path.resolve(require.resolve("react-native-vector-icons/package.json"), "..")),
 );
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
