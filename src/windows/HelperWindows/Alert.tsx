@@ -79,6 +79,7 @@ const style = StyleSheet.create({
   },
   title: {
     fontFamily: blixtTheme.fontMedium,
+    fontWeight: blixtTheme.fontMediumWeight,
     fontSize: 21,
     marginBottom: 13,
   },

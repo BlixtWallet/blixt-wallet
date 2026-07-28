@@ -1,12 +1,16 @@
 import Color from "color";
-import { StackNavigationOptions, StackCardInterpolationProps } from "@react-navigation/stack";
+import {
+  CardStyleInterpolators,
+  StackNavigationOptions,
+  StackCardInterpolationProps,
+} from "@react-navigation/stack";
 
 import { useStoreState } from "../state/store";
 import { blixtTheme } from "../native-base-theme/variables/commonColor";
 import { Chain } from "../utils/build";
 import { Platform } from "react-native";
 
-const forFade = ({ current, next, index, closing }: StackCardInterpolationProps) => {
+const forFade = ({ current, index }: StackCardInterpolationProps) => {
   const opacity = current.progress.interpolate({
     inputRange: [0, index],
     outputRange: [0, 1],
@@ -18,6 +22,26 @@ const forFade = ({ current, next, index, closing }: StackCardInterpolationProps)
     },
   };
 };
+
+export function withHorizontalTransition(
+  options: StackNavigationOptions = {},
+): StackNavigationOptions {
+  if (Platform.OS === "windows") {
+    return {
+      ...options,
+      animation: "none",
+      cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
+    };
+  }
+
+  return {
+    gestureEnabled: true,
+    ...options,
+    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+  };
+}
+
+export const horizontalTransition = withHorizontalTransition();
 
 export default function useStackNavigationOptions(): StackNavigationOptions {
   const screenTransitionsEnabled = useStoreState(

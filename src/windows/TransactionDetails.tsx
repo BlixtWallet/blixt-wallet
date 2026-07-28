@@ -7,12 +7,11 @@ import {
   ScrollView,
   TouchableOpacity,
 } from "react-native";
-import DialogAndroid from "react-native-dialogs";
 import Clipboard from "@react-native-clipboard/clipboard";
 import { Card, Text, CardItem, H1, View, Icon } from "native-base";
 import { Button } from "../components/Button";
 import { fromUnixTime } from "date-fns";
-import MapView, { PROVIDER_DEFAULT, Marker } from "react-native-maps";
+import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 
 import Blurmodal from "../components/BlurModal";
 import QrCode from "../components/QrCode";
@@ -34,6 +33,7 @@ import { ITransaction } from "../storage/database/transaction";
 import { blixtTheme } from ".././native-base-theme/variables/commonColor";
 import { PLATFORM } from "../utils/constants";
 import { Alert } from "../utils/alert";
+import DialogAndroid from "../utils/dialog-android";
 
 import { useTranslation } from "react-i18next";
 import { namespaces } from "../i18n/i18n.constants";
@@ -63,7 +63,7 @@ function MetaData({ title, data, url }: IMetaDataProps) {
   );
 }
 
-function MetaDataLightningAddress({ title, data: lightningAddress, url }: IMetaDataProps) {
+function MetaDataLightningAddress({ title, data: lightningAddress }: IMetaDataProps) {
   const getContactByLightningAddress = useStoreState(
     (actions) => actions.contacts.getContactByLightningAddress,
   );
@@ -235,6 +235,7 @@ export default function TransactionDetails({ route, navigation }: ITransactionDe
       : formatBitcoin(transactionValue, bitcoinUnit, { includeSign: true });
 
   const hasCoordinates = transaction.locationLat && transaction.locationLong;
+  const mapSupported = PLATFORM !== "windows";
 
   if (currentScreen === "Overview") {
     return (
@@ -254,7 +255,7 @@ export default function TransactionDetails({ route, navigation }: ITransactionDe
                     <Text>{t("button.cancelInvoice")}</Text>
                   </Button>
                 )}
-                {hasCoordinates && (
+                {hasCoordinates && mapSupported && (
                   <Button
                     small={true}
                     onPress={() => {

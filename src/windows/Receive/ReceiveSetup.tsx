@@ -1,7 +1,6 @@
 import React, { useState, useLayoutEffect, useEffect } from "react";
 import { Icon, Text, Spinner } from "native-base";
 import { Button } from "../../components/Button";
-import DialogAndroid from "react-native-dialogs";
 import { useDebounce } from "use-debounce";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -17,6 +16,7 @@ import { Keyboard } from "react-native";
 import Container from "../../components/Container";
 import { IFiatRates } from "../../state/Fiat";
 import Input from "../../components/Input";
+import DialogAndroid from "../../utils/dialog-android";
 
 import { useTranslation } from "react-i18next";
 import { namespaces } from "../../i18n/i18n.constants";

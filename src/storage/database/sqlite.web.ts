@@ -10,21 +10,26 @@ const adaptWebDatabase = (db: Database): Database => {
   } as unknown as Database;
 };
 
-export const openDatabase = async (): Promise<Database> => {
-  // Electrobun backend does not use sqlite wasm,
-  // as we have our own bun:sqlite shim
-  if (IS_ELECTROBUN) {
-    return await TurboSqlite.openDatabaseAsync("Blixt");
-  }
-  return adaptWebDatabase(await TurboSqlite.openDatabaseAsync("Blixt"));
-};
-
 export const setupInitialSchema = async (db: Database) => {
-  console.log("Creating initial schema");
+  console.log("Ensuring initial schema");
 
   for (const sql of getInitialSchema()) {
     await db.executeSql(sql, []);
   }
+};
+
+export const openDatabase = async (): Promise<Database> => {
+  // Electrobun backend does not use sqlite wasm,
+  // as we have our own bun:sqlite shim
+  if (IS_ELECTROBUN) {
+    const db = await TurboSqlite.openDatabaseAsync("Blixt");
+    await setupInitialSchema(db);
+    return db;
+  }
+
+  const db = adaptWebDatabase(await TurboSqlite.openDatabaseAsync("Blixt"));
+  await setupInitialSchema(db);
+  return db;
 };
 
 export const deleteDatabase = async () => {

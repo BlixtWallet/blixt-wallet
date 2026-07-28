@@ -4,14 +4,16 @@ BigInt.prototype.toJSON = function () {
 };
 
 import "react-native-turbo-lnd";
-import "react-native-gesture-handler";
+import "./src/shims/gesture-handler";
 import { AppRegistry, LogBox, Platform, UIManager } from "react-native";
+import { enableScreens } from "react-native-screens";
 import App from "./src/App";
 import { name as appName } from "./app.json";
 import { enableES5 } from "immer";
 import "./src/i18n/i18n";
 
 enableES5();
+enableScreens(Platform.OS !== "windows");
 
 LogBox.ignoreLogs([
   // Workaround until native-base fixes their old

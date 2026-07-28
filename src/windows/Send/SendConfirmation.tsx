@@ -281,18 +281,13 @@ export default function SendConfirmation({ navigation, route }: ISendConfirmatio
             labelField="label"
             valueField="value"
             data={dropdownData}
-            fontFamily={
-              PLATFORM === "ios" || PLATFORM === "macos" ? "IBMPlexSans" : "IBMPlexSans-Regular"
-            }
+            fontFamily={blixtTheme.fontRegular}
             value={outChannel}
             selectedTextProps={{
               numberOfLines: 1,
               lineBreakMode: "tail",
               style: {
-                fontFamily:
-                  PLATFORM === "ios" || PLATFORM === "macos"
-                    ? "IBMPlexSans"
-                    : "IBMPlexSans-Regular",
+                fontFamily: blixtTheme.fontRegular,
                 fontSize: 17,
                 color: blixtTheme.light,
               },

@@ -1,13 +1,11 @@
 import React from "react";
-import {
-  createStackNavigator,
-  StackNavigationOptions,
-  CardStyleInterpolators,
-} from "@react-navigation/stack";
+import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 import SendCamera from "./SendCamera";
 import SendConfirmation from "./SendConfirmation";
 import SendDone from "./SendDone";
-import useStackNavigationOptions from "../../hooks/useStackNavigationOptions";
+import useStackNavigationOptions, {
+  withHorizontalTransition,
+} from "../../hooks/useStackNavigationOptions";
 
 export type SendStackParamList = {
   SendCamera: undefined;
@@ -29,13 +27,7 @@ export default function SendIndex() {
 
   return (
     <Stack.Navigator initialRouteName="SendCamera" screenOptions={screenOptions}>
-      <Stack.Screen
-        name="SendCamera"
-        component={SendCamera}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
-      />
+      <Stack.Screen name="SendCamera" component={SendCamera} options={withHorizontalTransition()} />
       <Stack.Screen name="SendConfirmation" component={SendConfirmation} />
       <Stack.Screen name="SendDone" component={SendDone} />
     </Stack.Navigator>

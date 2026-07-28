@@ -35,6 +35,7 @@ export default function WebInfo({ navigation }: IWebInfoProps) {
 const style = StyleSheet.create({
   title: {
     fontFamily: blixtTheme.fontMedium,
+    fontWeight: blixtTheme.fontMediumWeight,
     textAlign: "center",
     paddingBottom: 4,
   },

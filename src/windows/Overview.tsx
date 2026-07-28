@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Platform,
   Animated,
@@ -17,7 +17,7 @@ import { Button } from "../components/Button";
 import { DrawerActions, useNavigation, NavigationProp } from "@react-navigation/native";
 
 import { createDrawerNavigator } from "@react-navigation/drawer";
-import { createBottomTabNavigator, BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import { LegendList } from "@legendapp/list";
 import BigNumber from "bignumber.js";
@@ -49,7 +49,7 @@ const theme = nativeBaseTheme.default;
 const blixtTheme = nativeBaseTheme.blixtTheme;
 
 export interface IOverviewProps {
-  navigation: BottomTabNavigationProp<RootStackParamList, "Overview">;
+  navigation: NavigationProp<RootStackParamList>;
 }
 function Overview({ navigation }: IOverviewProps) {
   const { t } = useTranslation(namespaces.overview);
@@ -128,6 +128,25 @@ function Overview({ navigation }: IOverviewProps) {
     easing: Easing.bezier(0.16, 0.8, 0.3, 1),
   });
 
+  const onRefresh = async () => {
+    if (!rpcReady) {
+      return;
+    }
+    setRefreshing(true);
+    try {
+      await Promise.all([
+        getBalance(),
+        getFiatRate(),
+        checkOpenTransactions(),
+        getInfo(),
+        timeout(1000),
+      ]);
+    } catch (error: any) {
+      toast(error.message, 10, "warning");
+    }
+    setRefreshing(false);
+  };
+
   const refreshControl =
     PLATFORM === "android" || PLATFORM === "ios" ? (
       <RefreshControl
@@ -136,24 +155,7 @@ function Overview({ navigation }: IOverviewProps) {
         refreshing={refreshing}
         colors={[blixtTheme.light]}
         progressBackgroundColor={blixtTheme.gray}
-        onRefresh={async () => {
-          if (!rpcReady) {
-            return;
-          }
-          setRefreshing(true);
-          try {
-            await Promise.all([
-              getBalance(),
-              getFiatRate(),
-              checkOpenTransactions(),
-              getInfo(),
-              timeout(1000),
-            ]);
-          } catch (error: any) {
-            toast(error.message, 10, "warning");
-          }
-          setRefreshing(false);
-        }}
+        onRefresh={onRefresh}
       />
     ) : undefined;
 
@@ -661,6 +663,7 @@ const headerInfo = StyleSheet.create({
       web: 0,
     }),
     fontFamily: blixtTheme.fontMedium,
+    fontWeight: blixtTheme.fontMediumWeight,
     zIndex: 1000,
   },
   fiat: {
@@ -719,4 +722,5 @@ export function DrawerComponent() {
     </DrawerNav.Navigator>
   );
 }
+
 export default DrawerComponent;

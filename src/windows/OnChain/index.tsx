@@ -10,8 +10,9 @@ import OnChainTransactionLog from "./OnChainTransactionLog";
 import OnChainTransactionDetails from "./OnChainTransactionDetails";
 import Withdraw from "./Withdraw";
 import CameraFullscreen from "../CameraFullscreen";
-import useStackNavigationOptions from "../../hooks/useStackNavigationOptions";
-import { Platform } from "react-native";
+import useStackNavigationOptions, {
+  withHorizontalTransition,
+} from "../../hooks/useStackNavigationOptions";
 import { PLATFORM } from "../../utils/constants";
 
 const Stack = createStackNavigator();
@@ -40,9 +41,7 @@ export default function OnChainIndex() {
       <Stack.Screen
         name="OnChainTransactionLog"
         component={OnChainTransactionLog}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        options={withHorizontalTransition()}
       />
       <Stack.Screen
         name="OnChainTransactionDetails"
@@ -52,21 +51,14 @@ export default function OnChainIndex() {
           cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
         }}
       />
-      <Stack.Screen
-        name="Withdraw"
-        component={Withdraw}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
-      />
+      <Stack.Screen name="Withdraw" component={Withdraw} options={withHorizontalTransition()} />
       <Stack.Screen
         name="CameraFullscreen"
         component={CameraFullscreen}
-        options={{
+        options={withHorizontalTransition({
           gestureEnabled: true,
           gestureResponseDistance: 1000,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        })}
       />
     </Stack.Navigator>
   );

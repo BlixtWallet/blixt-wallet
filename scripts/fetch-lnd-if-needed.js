@@ -41,10 +41,15 @@ try {
     process.exit(0);
   }
 
+  const fetchArgs = [turboLndFetchPath];
+  if (process.platform === "win32") {
+    fetchArgs.push("--targets=ios,android,windows");
+  }
+
   console.log(
     `[postinstall] Fetching LND binaries (react-native-turbo-lnd ${markerVersion || "none"} -> ${installedVersion}).`,
   );
-  const result = spawnSync(process.execPath, [turboLndFetchPath], {
+  const result = spawnSync(process.execPath, fetchArgs, {
     cwd: repoRoot,
     stdio: "inherit",
   });

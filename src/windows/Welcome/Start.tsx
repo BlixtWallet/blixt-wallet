@@ -1,6 +1,5 @@
 import React, { JSX, useRef, useState } from "react";
 import { StyleSheet, StatusBar, SafeAreaView, Platform } from "react-native";
-import DialogAndroid from "react-native-dialogs";
 import { Text, H1, View, Spinner, Icon } from "native-base";
 import { Button } from "../../components/Button";
 import { useStoreActions, useStoreState } from "../../state/store";
@@ -20,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { languages, namespaces } from "../../i18n/i18n.constants";
 import { toast } from "../../utils";
 import { Alert } from "../../utils/alert";
+import DialogAndroid from "../../utils/dialog-android";
 import { restartAppOrNotify, showRestartNeededAlert } from "../../utils/restart-app";
 
 interface IAnimatedH1Props {
@@ -79,11 +79,7 @@ function TopMenu({ navigation, setCreateWalletLoading }: IStartProps) {
             const hasLeadingTrailingSpaces = text.trim() !== text;
 
             if (!!hasLeadingTrailingSpaces) {
-              toast(
-                t("createWalletWithPassphrase.noLeadingTrailingSpaces"),
-                undefined,
-                "danger",
-              );
+              toast(t("createWalletWithPassphrase.noLeadingTrailingSpaces"), undefined, "danger");
               return;
             }
 

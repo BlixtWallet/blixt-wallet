@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Vibration } from "react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import DialogAndroid from "react-native-dialogs";
 
 import { useStoreState, useStoreActions } from "../../state/store";
 import { getDomainFromURL, toast, timeout } from "../../utils";
@@ -15,6 +14,7 @@ import {
 import { PLATFORM } from "../../utils/constants";
 import LoadingModal from "../LoadingModal";
 import { Alert } from "../../utils/alert";
+import DialogAndroid from "../../utils/dialog-android";
 
 import { useTranslation } from "react-i18next";
 import { namespaces } from "../../i18n/i18n.constants";

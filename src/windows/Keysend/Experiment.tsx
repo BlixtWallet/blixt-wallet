@@ -69,7 +69,7 @@ export default function KeysendTest({ navigation }: IKeysendExperimentProps) {
       headerBackTitle: t("buttons.back", { ns: namespaces.common }),
       headerShown: true,
       headerRight: () => {
-        return PLATFORM !== "macos" ? (
+        return PLATFORM !== "macos" && PLATFORM !== "windows" ? (
           <NavigationButton onPress={onPressCamera}>
             <Icon type="AntDesign" name="camera" style={{ fontSize: 22 }} />
           </NavigationButton>

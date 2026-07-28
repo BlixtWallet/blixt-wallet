@@ -16,11 +16,11 @@ import Settings from "./windows/Settings";
 import LightningInfo from "./windows/LightningInfo";
 import OnChain from "./windows/OnChain";
 import Authentication from "./windows/InitProcess/Authentication";
-import DEV_Commands from "./windows/InitProcess/DEV_Commands";
+import DEVCommands from "./windows/InitProcess/DEV_Commands";
 import Welcome from "./windows/Welcome";
 import LNURL from "./windows/LNURL";
 import KeysendExperiment from "./windows/Keysend/Experiment";
-import LightingBox from "./windows/LightningBox";
+import LightningBox from "./windows/LightningBox";
 import GoogleDriveTestbed from "./windows/Google/GoogleDriveTestbed";
 import TransactionDetails from "./windows/TransactionDetails";
 import SyncInfo from "./windows/SyncInfo";
@@ -38,8 +38,10 @@ import CameraFullscreen from "./windows/CameraFullscreen";
 
 import { blixtTheme } from "./native-base-theme/variables/commonColor";
 import Container from "./components/Container";
-import useStackNavigationOptions from "./hooks/useStackNavigationOptions";
-import { navigator } from "./utils/navigation";
+import useStackNavigationOptions, {
+  horizontalTransition,
+  withHorizontalTransition,
+} from "./hooks/useStackNavigationOptions";
 import { PLATFORM } from "./utils/constants";
 import Prompt, { IPromptNavigationProps } from "./windows/HelperWindows/Prompt";
 import HelperAlert, { IHelperAlertNavigationProps } from "./windows/HelperWindows/Alert";
@@ -68,6 +70,8 @@ export type RootStackParamList = {
   OnChain: undefined;
   Settings: undefined;
   LNURL: undefined;
+  LightningInfo: undefined;
+  Contacts: undefined;
   GoogleDriveTestbed: undefined;
   KeysendTest: undefined;
   KeysendExperiment: undefined;
@@ -85,6 +89,7 @@ export type RootStackParamList = {
 
   DEV_CommandsX: undefined;
   SyncWorkerReport: undefined;
+  SyncWorkerTimelineReport: undefined;
 };
 
 export default function Main() {
@@ -193,11 +198,6 @@ export default function Main() {
   const animationDisabled: StackNavigationOptions = {
     animation: "none",
     cardStyleInterpolator: CardStyleInterpolators.forNoAnimation,
-  };
-
-  const horizontalTransition: StackNavigationOptions = {
-    gestureEnabled: true,
-    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
   };
 
   if (state === "init") {
@@ -327,10 +327,9 @@ export default function Main() {
       <RootStack.Screen
         name="CameraFullscreen"
         component={CameraFullscreen}
-        options={{
+        options={withHorizontalTransition({
           gestureEnabled: true,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        })}
       />
 
       <RootStack.Screen name="Overview" component={Overview} options={animationDisabled} />
@@ -345,12 +344,11 @@ export default function Main() {
       <RootStack.Screen
         name="Send"
         component={Send}
-        options={{
+        options={withHorizontalTransition({
           animation: screenTransitionsEnabled ? "default" : "none",
           gestureEnabled: true,
           gestureResponseDistance: 1000,
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        })}
       />
       <RootStack.Screen name="OnChain" component={OnChain} options={horizontalTransition} />
       <RootStack.Screen
@@ -376,12 +374,12 @@ export default function Main() {
       />
       <RootStack.Screen
         name="LightningBox"
-        component={LightingBox}
+        component={LightningBox}
         options={horizontalTransition}
       />
       <RootStack.Screen name="Prompt" component={Prompt} options={animationDisabled} />
       <RootStack.Screen name="HelperAlert" component={HelperAlert} options={animationDisabled} />
-      <RootStack.Screen name="DEV_CommandsX" component={DEV_Commands} options={animationDisabled} />
+      <RootStack.Screen name="DEV_CommandsX" component={DEVCommands} options={animationDisabled} />
       <RootStack.Screen
         name="SyncWorkerReport"
         component={SyncWorkerReport}

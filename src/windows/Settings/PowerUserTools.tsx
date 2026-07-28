@@ -471,12 +471,16 @@ export default function PowerUserTools({ navigation }: IPowerUserToolsProps) {
       title: t("debug.resetMissionControl.title"),
       onPress: onPressResetMissionControl,
     },
-    {
-      type: "item",
-      icon: { type: "MaterialCommunityIcons", name: "file-export" },
-      title: "Restore SCB channel backup file",
-      onPress: onPressRestoreChannelBackup,
-    },
+    ...(PLATFORM !== "windows"
+      ? [
+          {
+            type: "item",
+            icon: { type: "MaterialCommunityIcons", name: "file-export" },
+            title: "Restore SCB channel backup file",
+            onPress: onPressRestoreChannelBackup,
+          },
+        ]
+      : []),
     {
       type: "item",
       icon: { type: "FontAwesome", name: "stop" },

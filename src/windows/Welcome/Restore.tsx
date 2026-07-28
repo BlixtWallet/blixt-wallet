@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { StatusBar, StyleSheet, Alert, TextInput } from "react-native";
 import {
   DocumentPickerResponse,
+  LocalCopyResponse,
+  keepLocalCopy,
   pick,
   types,
-  keepLocalCopy,
-  LocalCopyResponse,
 } from "@react-native-documents/picker";
 import { readFile } from "react-native-fs";
-import { Text, View, H1, Textarea, Spinner, H3 } from "native-base";
+import { Text, View, H1, Spinner, H3 } from "native-base";
 import { Button } from "../../components/Button";
 import { StackNavigationProp } from "@react-navigation/stack";
 
@@ -48,7 +48,6 @@ export default function Restore({ navigation }: IProps) {
   const [b64Backup, setB64Backup] = useState<string | null>(null);
   const setWalletSeed = useStoreActions((store) => store.setWalletSeed);
   const createWallet = useStoreActions((store) => store.createWallet);
-  const isSignedInGoogle = useStoreState((store) => store.google.isSignedIn);
   const signInGoogle = useStoreActions((store) => store.google.signIn);
   const googleDriveGetBackupFile = useStoreActions(
     (store) => store.googleDriveBackup.getBackupFile,
@@ -103,7 +102,7 @@ export default function Restore({ navigation }: IProps) {
               backupFileUri,
               PLATFORM === "android" ? "base64" : undefined,
             );
-          } catch (e) {
+          } catch {
             backupBase64 = await readFile(
               backupFileUri,
               PLATFORM === "android" ? undefined : "base64",
@@ -318,14 +317,16 @@ export default function Restore({ navigation }: IProps) {
               <H3>{t("restore.channel.title")}</H3>
               {backupType === "none" && (
                 <View style={{ display: "flex", flexDirection: "column" }}>
-                  <Button
-                    style={{ marginTop: 6, marginBottom: 10 }}
-                    small
-                    onPress={pickChannelsExportFile}
-                    onLongPress={PLATFORM === "android" ? pickChannelDbFile : undefined}
-                  >
-                    <Text>{backupFile === null && t("restore.channel.file")}</Text>
-                  </Button>
+                  {PLATFORM !== "windows" && (
+                    <Button
+                      style={{ marginTop: 6, marginBottom: 10 }}
+                      small
+                      onPress={pickChannelsExportFile}
+                      onLongPress={PLATFORM === "android" ? pickChannelDbFile : undefined}
+                    >
+                      <Text>{backupFile === null && t("restore.channel.file")}</Text>
+                    </Button>
+                  )}
                   {PLATFORM === "android" && (
                     <Button small onPress={googleDriveBackup}>
                       <Text>{t("restore.channel.google.title")}</Text>

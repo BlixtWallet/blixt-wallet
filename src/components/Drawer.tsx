@@ -130,7 +130,7 @@ export default function Drawer({ navigation }: DrawerContentComponentProps) {
         <View style={style.menu}>
           {(layoutMode === "full" || PLATFORM === "macos") && (
             <>
-              {PLATFORM !== "macos" && (
+              {PLATFORM !== "macos" && PLATFORM !== "windows" && (
                 <TouchableOpacity onPress={() => goToScreen("Send")}>
                   <View style={style.menuItem}>
                     <Icon style={style.menuItemIcon} type="AntDesign" name="camerao" />
@@ -172,12 +172,14 @@ export default function Drawer({ navigation }: DrawerContentComponentProps) {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={goToLightningBrowser}>
-            <View style={style.menuItem}>
-              <Icon style={style.menuItemIcon} type="MaterialCommunityIcons" name="web" />
-              <Text style={style.menuItemText}>{t("menu.lightningBrowser")}</Text>
-            </View>
-          </TouchableOpacity>
+          {PLATFORM !== "windows" && (
+            <TouchableOpacity onPress={goToLightningBrowser}>
+              <View style={style.menuItem}>
+                <Icon style={style.menuItemIcon} type="MaterialCommunityIcons" name="web" />
+                <Text style={style.menuItemText}>{t("menu.lightningBrowser")}</Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity onPress={() => goToScreen("OnChain")}>
             <View style={style.menuItem}>
@@ -274,6 +276,7 @@ const style = StyleSheet.create({
   blixtTitle: {
     marginTop: 3,
     fontFamily: blixtTheme.fontMedium,
+    fontWeight: blixtTheme.fontMediumWeight,
     fontSize: 33 / PixelRatio.getFontScale(),
   },
   menu: {
@@ -317,6 +320,7 @@ const style = StyleSheet.create({
   },
   menuItemText: {
     fontFamily: blixtTheme.fontMedium,
+    fontWeight: blixtTheme.fontMediumWeight,
     fontSize: 14 * fontFactorNormalized,
   },
   bottom: {

@@ -1,0 +1,15 @@
+/.yarn/**            linguist-vendored
+/.yarn/releases/*    binary
+/.yarn/plugins/**/*  binary
+/.pnp.*              binary linguist-generated
+
+*.sln text eol=crlf
+*.vcxproj text eol=crlf
+*.vcxproj.filters text eol=crlf
+*.props text eol=crlf
+*.targets text eol=crlf
+*.wapproj text eol=crlf
+*.rc text working-tree-encoding=UTF-16LE-BOM eol=crlf
+
+*.ico binary
+*.png binary

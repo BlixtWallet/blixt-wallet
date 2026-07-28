@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj'">
+    <!--
+      Some imported Windows App SDK native props evaluate before vcxproj
+      configuration has populated $(Platform), which produces broken
+      lib\native\<arch> paths. Default to x64 for the current bring-up path.
+    -->
+    <Platform Condition="'$(Platform)' == ''">x64</Platform>
+
+    <!-- TurboLnd's fetch helper stores the runtime DLL inside its package. -->
+    <LndDllPath Condition="'$(MSBuildProjectName)' == 'ReactNativeTurboLnd' and Exists('$(MSBuildThisFileDirectory)node_modules\react-native-turbo-lnd\windows\liblnd.dll')">$(MSBuildThisFileDirectory)node_modules\react-native-turbo-lnd\windows\liblnd.dll</LndDllPath>
+
+    <!--
+      Reduce MSVC PCH/compiler-heap pressure in Microsoft.ReactNative/Fabric.
+      This is about cl.exe PCH mapping behavior, not low system RAM.
+    -->
+    <PreferredToolArchitecture>x64</PreferredToolArchitecture>
+    <MultiProcCL>false</MultiProcCL>
+    <MinimalRebuildFromTracking>false</MinimalRebuildFromTracking>
+    <TrackFileAccess>false</TrackFileAccess>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(MSBuildProjectExtension)' == '.vcxproj'">
+    <ClCompile>
+      <MultiProcessorCompilation>false</MultiProcessorCompilation>
+      <MinimalRebuild>false</MinimalRebuild>
+    </ClCompile>
+  </ItemDefinitionGroup>
+</Project>

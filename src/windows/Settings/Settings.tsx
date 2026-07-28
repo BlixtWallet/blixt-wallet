@@ -33,7 +33,6 @@ import { Alert } from "../../utils/alert";
 import BlixtWallet from "../../components/BlixtWallet";
 import { Chain } from "../../utils/build";
 import Clipboard from "@react-native-clipboard/clipboard";
-import DialogAndroid from "react-native-dialogs";
 import { pick } from "@react-native-documents/picker";
 import { IFiatRates } from "../../state/Fiat";
 import { LoginMethods } from "../../state/Security";
@@ -49,6 +48,7 @@ import { FlatList } from "react-native";
 import { blixtTheme } from "../../native-base-theme/variables/commonColor";
 import Input from "../../components/Input";
 import ReactNativePermissions from "react-native-permissions";
+import DialogAndroid from "../../utils/dialog-android";
 import { restartAppOrNotify, showRestartNeededAlert } from "../../utils/restart-app";
 
 interface ISettingsProps {

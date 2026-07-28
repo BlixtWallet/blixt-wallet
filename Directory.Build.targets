@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project>
+  <PropertyGroup>
+    <BlixtDisableMicrosoftReactNativePch Condition="'$(BlixtDisableMicrosoftReactNativePch)' == ''">false</BlixtDisableMicrosoftReactNativePch>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup Condition="'$(MSBuildProjectName)' == 'Microsoft.ReactNative'">
+    <ClCompile>
+      <DisableSpecificWarnings>4459;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(MSBuildProjectName)' == 'Microsoft.ReactNative' and '$(BlixtDisableMicrosoftReactNativePch)' == 'true'">
+    <ClCompile>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Microsoft.ReactNative' and '$(BlixtDisableMicrosoftReactNativePch)' == 'true'">
+    <ClCompile Update="Pch\pch.cpp">
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+
+</Project>

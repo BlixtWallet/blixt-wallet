@@ -61,7 +61,7 @@ export default function OpenChannel({ navigation, route }: IConnectToLightningPe
             component: (
               <>
                 <Input placeholder={t("connect.placeholder")} value={peer} onChangeText={setPeer} />
-                {PLATFORM !== "macos" && (
+                {PLATFORM !== "macos" && PLATFORM !== "windows" && (
                   <Icon type="AntDesign" name="camera" onPress={onCameraPress} />
                 )}
               </>

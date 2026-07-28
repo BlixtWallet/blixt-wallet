@@ -5,8 +5,10 @@ import * as querystring from "querystring";
 import aesjs, { ByteSource } from "aes-js";
 import * as base64 from "base64-js";
 import { Alert } from "react-native";
-import Geolocation from "@react-native-community/geolocation";
-import type { GeolocationResponse, GeolocationError } from "@react-native-community/geolocation";
+import Geolocation, {
+  type GeolocationError,
+  type GeolocationResponse,
+} from "@react-native-community/geolocation";
 
 export const capitalize = (word: string) =>
   word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
@@ -107,8 +109,8 @@ export const getGeolocation = (): Promise<GeolocationResponse["coords"]> => {
       (position) => {
         resolve(position.coords);
       },
-      (error) => {
-        reject(error as GeolocationError);
+      (error: GeolocationError) => {
+        reject(error);
       },
     );
   });

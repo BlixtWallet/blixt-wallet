@@ -7,11 +7,11 @@ import {
   Platform,
   ViewStyle,
 } from "react-native";
-import DialogAndroid from "react-native-dialogs";
 import { IS_ELECTROBUN, PLATFORM } from "./constants";
 import { getNavigator, navigate } from "./navigation";
 import { IPromptNavigationProps } from "../windows/HelperWindows/Prompt";
 import { IHelperAlertNavigationProps } from "../windows/HelperWindows/Alert";
+import DialogAndroid from "./dialog-android";
 
 export interface IHelperAlertOptions {
   maxWidth?: ViewStyle["maxWidth"];
@@ -80,7 +80,9 @@ class WebAlert implements AlertStatic {
     defaultValue?: string,
     keyboardType?: string,
   ) {
-    if (Platform.OS === "web") {
+    const canUsePromptScreen = getNavigator()?.getRootState()?.routeNames.includes("Prompt");
+
+    if (Platform.OS === "web" || Platform.OS === "windows") {
       const onOk = (result: string) => {
         if (typeof callbackOrButtons === "object") {
           const ok = callbackOrButtons.find(({ style }) => style !== "cancel");
@@ -95,8 +97,6 @@ class WebAlert implements AlertStatic {
           cancel?.onPress?.();
         }
       };
-
-      const canUsePromptScreen = getNavigator()?.getRootState()?.routeNames.includes("Prompt");
       if (canUsePromptScreen) {
         navigate<IPromptNavigationProps>("Prompt", {
           title,
@@ -108,13 +108,23 @@ class WebAlert implements AlertStatic {
         return;
       }
 
-      const result = window.prompt(message, defaultValue);
+      const promptFn =
+        typeof window === "object" && typeof window.prompt === "function" ? window.prompt : null;
+      if (!promptFn) {
+        onCancel();
+        return;
+      }
+
+      const result = promptFn(message, defaultValue);
       if (result === null) {
         onCancel();
       } else {
         onOk(result);
       }
-    } else if (PLATFORM === "android") {
+      return;
+    }
+
+    if (PLATFORM === "android") {
       const positiveText =
         typeof callbackOrButtons === "object"
           ? callbackOrButtons.find((button) => button.style === "default")?.text
@@ -152,9 +162,41 @@ class WebAlert implements AlertStatic {
           }
         },
       );
-    } else {
-      RealAlert.prompt(title, message, callbackOrButtons, type, defaultValue, keyboardType);
+      return;
     }
+
+    if (canUsePromptScreen && typeof RealAlert.prompt !== "function") {
+      const onOk = (result: string) => {
+        if (typeof callbackOrButtons === "object") {
+          const ok = callbackOrButtons.find(({ style }) => style !== "cancel");
+          ok?.onPress?.(result);
+        } else {
+          callbackOrButtons?.(result);
+        }
+      };
+      const onCancel = () => {
+        if (typeof callbackOrButtons === "object") {
+          const cancel = callbackOrButtons.find(({ style }) => style === "cancel");
+          cancel?.onPress?.();
+        }
+      };
+
+      navigate<IPromptNavigationProps>("Prompt", {
+        title,
+        message,
+        defaultValue,
+        onOk,
+        onCancel,
+      });
+      return;
+    }
+
+    if (typeof RealAlert.prompt === "function") {
+      RealAlert.prompt(title, message, callbackOrButtons, type, defaultValue, keyboardType);
+      return;
+    }
+
+    RealAlert.alert(title, message, typeof callbackOrButtons === "object" ? callbackOrButtons : []);
   }
 
   public promisePromptCallback(

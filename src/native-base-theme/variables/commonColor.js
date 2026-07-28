@@ -3,6 +3,9 @@
 import color from 'color';
 import { Platform, Dimensions, PixelRatio } from 'react-native';
 
+/** @type {"500" | undefined} */
+const fontMediumWeight = Platform.OS === "windows" ? "500" : undefined;
+
 // https://coolors.co/151314-232323-bc6610-f2af13-e5eaea
 export const blixtTheme = {
   dark: "#151314",
@@ -17,8 +20,14 @@ export const blixtTheme = {
 
   link: "#4f9ca8",
 
-  fontMedium: "IBMPlexSans-Medium",
-  fontRegular:  (Platform.OS === "ios" || Platform.OS === "macos") ? "IBMPlexSans" : "IBMPlexSans-Regular",
+  fontMedium: Platform.OS === "windows" ? "IBM Plex Sans" : "IBMPlexSans-Medium",
+  fontMediumWeight,
+  fontRegular:
+    Platform.OS === "windows"
+      ? "IBM Plex Sans"
+      : Platform.OS === "ios" || Platform.OS === "macos"
+        ? "IBMPlexSans"
+        : "IBMPlexSans-Regular",
 }
 
 export const PLATFORM = {
@@ -330,6 +339,7 @@ export default {
 
   // Blixt customization:
   buttonFontFamily: platform === PLATFORM.IOS ? blixtTheme.fontMedium : blixtTheme.fontMedium,
+  buttonFontWeight: blixtTheme.fontMediumWeight,
   buttonDisabledBg: color(blixtTheme.gray).lighten(0.3).hex(),
 
   cardDefaultBg: blixtTheme.gray,

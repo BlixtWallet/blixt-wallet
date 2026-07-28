@@ -75,6 +75,7 @@ export const HEADER_MIN_HEIGHT =
     android: (StatusBar.currentHeight ?? 0) + 53,
     ios: getStatusBarHeight(true) + 53,
     macos: 53,
+    windows: 53,
   }) ?? 53;
 
 export const HEADER_MAX_HEIGHT =
@@ -83,6 +84,7 @@ export const HEADER_MAX_HEIGHT =
     ios: 195,
     web: 195 - 32,
     macos: 175,
+    windows: 175,
   }) ?? 195) / (zoomed ? 0.85 : 1);
 
 export const BLIXT_NODE_PUBKEY =

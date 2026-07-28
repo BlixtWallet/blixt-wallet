@@ -111,7 +111,7 @@ export default ({ navigation }: IOpenChannelProps) => {
                   value={address}
                   onChangeText={onAddressChange}
                 />
-                {PLATFORM !== "macos" && (
+                {PLATFORM !== "macos" && PLATFORM !== "windows" && (
                   <Icon
                     type="AntDesign"
                     name="camera"

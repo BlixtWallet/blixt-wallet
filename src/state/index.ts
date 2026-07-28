@@ -238,7 +238,7 @@ export const model: IStoreModel = {
       toast("Successfully imported channel.db");
     }
 
-    const db = await actions.openDb();
+    await actions.openDb();
     const firstStartup = !(await getItemObjectAsyncStorage(StorageItem.app));
     if (firstStartup) {
       log.i("Initializing app for the first time");
@@ -258,12 +258,6 @@ export const model: IStoreModel = {
         //   dispatch.settings.changeBitcoindPubRawTx,
         // );
         await setupRegtest2(dispatch.settings.changeNeutrinoPeers);
-      }
-      log.i("Initializing db for the first time");
-      try {
-        await setupInitialSchema(db);
-      } catch (error: any) {
-        throw new Error("Error creating DB: " + error.message);
       }
       log.i("Writing lnd.conf");
       await actions.writeConfig();

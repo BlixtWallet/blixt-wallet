@@ -83,6 +83,7 @@ const style = StyleSheet.create({
   },
   blixtTitle: {
     fontFamily: blixtTheme.fontMedium,
+    fontWeight: blixtTheme.fontMediumWeight,
     fontSize: 40 / PixelRatio.getFontScale(),
   },
   version: {

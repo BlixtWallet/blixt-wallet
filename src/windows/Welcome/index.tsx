@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  createStackNavigator,
-  StackNavigationOptions,
-  CardStyleInterpolators,
-} from "@react-navigation/stack";
+import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 
 import Start from "./Start";
 import Seed from "./Seed";
@@ -14,7 +10,9 @@ import ICloudBackup from "./ICloudBackup";
 import Restore from "./Restore";
 import AddFunds from "./AddFunds";
 
-import useStackNavigationOptions from "../../hooks/useStackNavigationOptions";
+import useStackNavigationOptions, {
+  withHorizontalTransition,
+} from "../../hooks/useStackNavigationOptions";
 import SelectList, { ISelectListNavigationProps } from "../HelperWindows/SelectList";
 
 const Stack = createStackNavigator<WelcomeStackParamList>();
@@ -50,7 +48,7 @@ export type WelcomeStackParamList = {
 export default function WelcomeIndex() {
   const screenOptions: StackNavigationOptions = {
     ...useStackNavigationOptions(),
-    cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
+    ...withHorizontalTransition(),
   };
 
   return (

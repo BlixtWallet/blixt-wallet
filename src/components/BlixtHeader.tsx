@@ -1,6 +1,5 @@
 import React from "react";
-import { StyleProp, View, ViewStyle } from "react-native";
-import LinearGradient from "react-native-linear-gradient";
+import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 import { blixtTheme } from "../native-base-theme/variables/commonColor";
 import { Chain } from "../utils/build";
 import Color from "color";
@@ -25,11 +24,31 @@ export default function BlixtHeader(props: any) {
     height: "100%",
   } as StyleProp<ViewStyle>;
 
-  if (useLegacyHeaderGradient && PLATFORM !== "web") {
+  const windowsGradientSteps = Array.from({ length: 48 }, (_, index) => {
+    const ratio = index / 47;
+    return Color(gradientColors[0]).mix(Color(gradientColors[1]), ratio).hex();
+  });
+
+  if (useLegacyHeaderGradient && PLATFORM !== "web" && PLATFORM !== "windows") {
+    const LinearGradient = require("react-native-linear-gradient")
+      .default as typeof import("react-native-linear-gradient").default;
     return (
       <LinearGradient style={containerStyle} colors={gradientColors}>
         {props?.children}
       </LinearGradient>
+    );
+  }
+
+  if (PLATFORM === "windows") {
+    return (
+      <View style={containerStyle}>
+        <View pointerEvents="none" style={styles.windowsGradientOverlay}>
+          {windowsGradientSteps.map((color, index) => (
+            <View key={index} style={[styles.windowsGradientRow, { backgroundColor: color }]} />
+          ))}
+        </View>
+        {props?.children}
+      </View>
     );
   }
 
@@ -42,3 +61,12 @@ export default function BlixtHeader(props: any) {
 
   return <View style={[{ ...containerStyle, ...gradientStyle }]}>{props?.children}</View>;
 }
+
+const styles = StyleSheet.create({
+  windowsGradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  windowsGradientRow: {
+    flex: 1,
+  },
+});

@@ -310,6 +310,7 @@ export default (variables /* : * */ = variable) => {
 
     'NativeBase.Text': {
       fontFamily: variables.buttonFontFamily,
+      fontWeight: variables.buttonFontWeight,
       marginLeft: 0,
       marginRight: 0,
       color: variables.inverseTextColor,

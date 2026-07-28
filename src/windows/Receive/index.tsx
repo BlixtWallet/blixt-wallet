@@ -10,7 +10,9 @@ import ReceiveSetupLsp from "./ReceiveSetupLsp";
 import ReceiveQr from "./ReceiveQr";
 import DunderLspInfo from "./DunderLspInfo";
 
-import useStackNavigationOptions from "../../hooks/useStackNavigationOptions";
+import useStackNavigationOptions, {
+  withHorizontalTransition,
+} from "../../hooks/useStackNavigationOptions";
 import SelectList, { ISelectListNavigationProps } from "../HelperWindows/SelectList";
 import { IFiatRates } from "../../state/Fiat";
 import { useStoreState } from "../../state/store";
@@ -50,10 +52,9 @@ export default function ReceiveIndex() {
       <Stack.Screen
         name="ReceiveQr"
         component={ReceiveQr}
-        options={{
+        options={withHorizontalTransition({
           animationTypeForReplace: "push",
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        })}
       />
       <Stack.Screen name="ChangeFiatUnit" component={SelectList} />
       <Stack.Screen name="ChangeBitcoinUnit" component={SelectList} />

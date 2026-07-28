@@ -1,9 +1,5 @@
 import React from "react";
-import {
-  CardStyleInterpolators,
-  createStackNavigator,
-  StackNavigationOptions,
-} from "@react-navigation/stack";
+import { createStackNavigator, StackNavigationOptions } from "@react-navigation/stack";
 
 import Settings from "./Settings";
 import SetPincode from "./SetPincode";
@@ -13,7 +9,9 @@ import LightningNodeInfo from "./LightningNodeInfo";
 import LightningNetworkInfo from "./LightningNetworkInfo";
 import About from "./About";
 import TorShowOnionAddress from "./TorShowOnionAddress";
-import useStackNavigationOptions from "../../hooks/useStackNavigationOptions";
+import useStackNavigationOptions, {
+  withHorizontalTransition,
+} from "../../hooks/useStackNavigationOptions";
 import SelectList, { ISelectListNavigationProps } from "../HelperWindows/SelectList";
 import { IFiatRates } from "../../state/Fiat";
 import { LndLogLevel, OnchainExplorer } from "../../state/Settings";
@@ -82,10 +80,7 @@ export default function SettingsIndex() {
       <Stack.Screen
         name="ConnectToLightningPeer"
         component={ConnectToLightningPeer}
-        options={{
-          // animationEnabled: true, // TODO(hsjoberg) check if we need to use `animation`
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        options={withHorizontalTransition()}
       />
       <Stack.Screen name="ChannelProvider" component={SelectList} />
       <Stack.Screen name="LndLog" component={LndLog} />
@@ -96,9 +91,7 @@ export default function SettingsIndex() {
       <Stack.Screen
         name="PowerUserTools"
         component={PowerUserTools}
-        options={{
-          cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS,
-        }}
+        options={withHorizontalTransition()}
       />
     </Stack.Navigator>
   );

@@ -6,6 +6,7 @@ import { useNavigation, NavigationProp } from "@react-navigation/core";
 import { useTranslation } from "react-i18next";
 import { namespaces } from "../i18n/i18n.constants";
 import { RootStackParamList } from "../Main";
+import { PLATFORM } from "../utils/constants";
 
 export default function FooterNav() {
   const navigation = useNavigation<NavigationProp<RootStackParamList>>();
@@ -19,12 +20,14 @@ export default function FooterNav() {
           <Text>{t("receive")}</Text>
         </Button>
       </FooterTab>
-      <FooterTab>
-        <Button testID="FOOTER_SEND" onPress={() => navigation.navigate("Send")}>
-          <Icon type="AntDesign" name="camerao" />
-          <Text>{t("send")}</Text>
-        </Button>
-      </FooterTab>
+      {PLATFORM !== "windows" && (
+        <FooterTab>
+          <Button testID="FOOTER_SEND" onPress={() => navigation.navigate("Send")}>
+            <Icon type="AntDesign" name="camerao" />
+            <Text>{t("send")}</Text>
+          </Button>
+        </FooterTab>
+      )}
     </Footer>
   );
 }

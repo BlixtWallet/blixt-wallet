@@ -13,7 +13,6 @@ import {
   Right,
   CheckBox,
 } from "native-base";
-import DialogAndroid from "react-native-dialogs";
 import {
   createStackNavigator,
   StackNavigationOptions,
@@ -33,6 +32,7 @@ import { IFiatRates } from "../../state/Fiat";
 import useStackNavigationOptions from "../../hooks/useStackNavigationOptions";
 import { Alert } from "../../utils/alert";
 import GoBackIcon from "../../components/GoBackIcon";
+import DialogAndroid from "../../utils/dialog-android";
 
 import { useTranslation } from "react-i18next";
 import { namespaces } from "../../i18n/i18n.constants";

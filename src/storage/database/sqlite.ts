@@ -4,22 +4,25 @@ import { DocumentDirectoryPath } from "react-native-fs";
 import { getInitialSchema } from "./sqlite-migrations";
 import { PLATFORM } from "../../utils/constants";
 
+export const setupInitialSchema = async (db: Database) => {
+  console.log("Ensuring initial schema");
+
+  for (const sql of getInitialSchema()) {
+    await db.executeSql(sql, []);
+  }
+};
+
 export const openDatabase = async (): Promise<Database> => {
   const path =
     PLATFORM === "android"
       ? DocumentDirectoryPath + " /../databases/"
-      : DocumentDirectoryPath + "/../Library/LocalDatabase/";
+      : PLATFORM === "windows"
+        ? DocumentDirectoryPath + "/LocalDatabase/"
+        : DocumentDirectoryPath + "/../Library/LocalDatabase/";
 
   const db = await TurboSqlite.openDatabase(path + "Blixt");
+  await setupInitialSchema(db);
   return db;
-};
-
-export const setupInitialSchema = async (db: Database) => {
-  console.log("Creating initial schema");
-
-  for (const sql of getInitialSchema()) {
-    const r = await db.executeSql(sql, []);
-  }
 };
 
 export const deleteDatabase = async () => {

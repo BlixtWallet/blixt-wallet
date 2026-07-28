@@ -1,5 +1,5 @@
 const schema = [
-  `CREATE TABLE tx (
+  `CREATE TABLE IF NOT EXISTS tx (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     date TEXT NOT NULL,
     duration REAL NULL,
@@ -36,7 +36,7 @@ const schema = [
     lud18PayerDataEmail TEXT NULL
   )`,
 
-  `CREATE TABLE tx_hops (
+  `CREATE TABLE IF NOT EXISTS tx_hops (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     txId INTEGER NOT NULL,
     chanId INTEGER NULL,
@@ -48,15 +48,15 @@ const schema = [
     expiry INTEGER NULL,
     pubkey TEXT NULL
   )`,
-  `CREATE INDEX tx_hops_tx_id ON tx_hops(txId)`,
+  `CREATE INDEX IF NOT EXISTS tx_hops_tx_id ON tx_hops(txId)`,
 
-  `CREATE TABLE channel_event (
+  `CREATE TABLE IF NOT EXISTS channel_event (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     txId STRING NOT NULL,
     type STRING NOT NULL
   )`,
 
-  `CREATE TABLE contact (
+  `CREATE TABLE IF NOT EXISTS contact (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     domain TEXT NOT NULL,
     type TEXT NOT NULL,
