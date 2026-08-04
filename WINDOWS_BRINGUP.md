@@ -2,7 +2,7 @@
 
 This file tracks the current React Native Windows bring-up state for `blixt-wallet`.
 
-For the separate upstream-facing note about the Reanimated / Worklets Windows shim issue, see:
+For the separate upstream-facing note about the Reanimated / Worklets Windows JavaScript fallback, see:
 
 - [WINDOWS_REANIMATED_WORKLETS_UPSTREAM.md](WINDOWS_REANIMATED_WORKLETS_UPSTREAM.md)
 
@@ -82,7 +82,7 @@ Screen modules and navigation routes remain statically imported and registered o
 - `@react-native-documents/picker` resolves to `src/shims/react-native-documents-picker.windows.ts`. Its methods reject with an explicit unsupported error; the file-picker controls remain hidden until a real Windows picker is available.
 - `@react-native-community/geolocation` and `react-native-maps` resolve to explicit Windows fallbacks. Geolocation reports `POSITION_UNAVAILABLE`, and map UI remains hidden until a Windows map implementation exists.
 - `react-native-vision-camera` resolves to `src/shims/react-native-vision-camera.windows.tsx`. Camera routes remain statically registered, but the shim reports no camera device or permission and the scan/Send entry points are hidden on Windows.
-- `react-native-drawer-layout` resolves to `src/shims/react-native-drawer-layout.windows.tsx`. The local drawer opens and closes without gestures or animation, avoiding the package's `.native` implementation and its module-scope Reanimated/Worklets imports.
+- `react-native-drawer-layout` uses its packaged native drawer on Windows. Metro disables `.native` preference only for internal Reanimated and Worklets imports on Windows, restoring their JavaScript fallback while preserving `.windows` precedence.
 - `index.js` imports the platform-resolved `src/shims/gesture-handler` bootstrap. The Windows variant is empty because Gesture Handler's root module probes a bridgeless `UIManager` API that RNW rejects even though the package includes a Windows no-op native-module file. React Navigation's stack resolves its own generic no-gesture adapter on Windows.
 - `react-native-nitro-tor` resolves to `src/shims/react-native-nitro-tor.windows.ts`, which returns an explicit unsupported result if Tor is enabled on Windows.
 - `react-native-turbo-lnd` root imports resolve to `react-native-turbo-lnd/mock`, and the Windows `NativeBlixtTools` adapter defaults `Flavor` to `fakelnd`. The package's native Windows project remains autolinked and builds against the fetched x64 DLL, but the current JS runtime does not start native `lnd`.
@@ -227,6 +227,31 @@ The current JS-side issue that showed up after startup was a Metro resolver recu
 
 The fix is to call the default Metro resolver with `resolveRequest: null` in the fallback context.
 
+### TouchableWithoutFeedback child refs
+
+React Native Windows' `TouchableWithoutFeedback.windows.js` forwards its own
+ref by cloning the child with `{...elementProps, ref}`. When no ref is supplied
+to the touchable, React receives `ref: null` and replaces any ref already set on
+the child. Core React Native clones the child without supplying a replacement
+ref, so this is a Windows behavior difference that is still present on RNW
+`main` and `0.85-stable`.
+
+This caused the `react-native-animatable` ref in
+`src/components/BlixtWallet.tsx` to remain null, making the logo animation
+handler return before calling `rubberBand`. Blixt now uses `Pressable`, which
+wraps the animated image and preserves its ref.
+
+The animation remains disabled on Windows because RNW Fabric does not reliably
+apply JS-driven scale transforms around the center of the view. The native
+Animated path centers the transform but is still visually unstable for this
+multi-keyframe animation.
+
+The upstream RNW fix should merge the child's existing ref and the touchable's
+forwarded ref with `useMergeRefs`, with a regression test covering both refs:
+
+- https://github.com/microsoft/react-native-windows/blob/main/vnext/src-win/Libraries/Components/Touchable/TouchableWithoutFeedback.windows.js
+- https://github.com/microsoft/react-native-windows/blob/0.85-stable/vnext/src-win/Libraries/Components/Touchable/TouchableWithoutFeedback.windows.js
+
 ## Known Release Blockers and Deferrals
 
 The current Windows target is suitable for bring-up and UI work, not for a funded production wallet. These items are intentionally deferred:
@@ -279,7 +304,6 @@ These Windows-specific files are currently intentional:
 - `src/shims/slider.windows.tsx`
 - `src/shims/webview.windows.tsx`
 - `src/shims/react-native-fs.windows.ts`
-- `src/shims/react-native-drawer-layout.windows.tsx`
 - `src/shims/gesture-handler.windows.ts`
 - `src/shims/react-native-documents-picker.windows.ts`
 - `src/shims/react-native-keyboard-controller.windows.tsx`

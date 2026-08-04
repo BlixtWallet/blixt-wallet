@@ -1,10 +1,11 @@
 import { Text } from "native-base";
 import React, { useRef, useState } from "react";
-import { Image, PixelRatio, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
+import { Image, PixelRatio, Pressable, StyleSheet, View } from "react-native";
 import { Image as AnimatedImage } from 'react-native-animatable';
 import { blixtTheme } from "../native-base-theme/variables/commonColor";
 import { timeout } from "../utils";
 import { Chain, VersionName } from "../utils/build";
+import { PLATFORM } from "../utils/constants";
 
 export function BlixtLogo() {
   const [blixtNumPress, setBlixtNumPress] = useState(0);
@@ -37,7 +38,7 @@ export function BlixtLogo() {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={doAnimation}>
+    <Pressable disabled={PLATFORM === "windows"} onPress={doAnimation}>
       <AnimatedImage
         ref={blixtLogo}
         source={{
@@ -47,7 +48,7 @@ export function BlixtLogo() {
         width={75}
         height={75}
       />
-    </TouchableWithoutFeedback>
+    </Pressable>
   );
 }
 

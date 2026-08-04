@@ -18,6 +18,14 @@ const rnwPath = normalizePathDrive(
 const rnviPath = normalizePathDrive(
   fs.realpathSync(path.resolve(require.resolve("react-native-vector-icons/package.json"), "..")),
 );
+const reanimatedWorkletsPaths = [
+  "react-native-reanimated",
+  "react-native-worklets",
+].map((packageName) =>
+  normalizePathDrive(
+    fs.realpathSync(path.resolve(require.resolve(`${packageName}/package.json`), "..")),
+  ),
+);
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const pathToRegExpSource = (absolutePath) =>
@@ -46,6 +54,25 @@ const config = {
   //
   resolver: {
     resolveRequest: (context, moduleName, platform) => {
+      if (
+        platform === "windows" &&
+        moduleName.startsWith(".") &&
+        context.originModulePath &&
+        reanimatedWorkletsPaths.some((packagePath) =>
+          isPathInside(normalizePathDrive(context.originModulePath), packagePath),
+        )
+      ) {
+        return resolve(
+          {
+            ...context,
+            preferNativePlatform: false,
+            resolveRequest: null,
+          },
+          moduleName,
+          platform,
+        );
+      }
+
       if (
         platform === "windows" &&
         (moduleName === "./create-icon-set" || moduleName === "./lib/create-icon-set") &&
@@ -151,13 +178,6 @@ const config = {
           "react-native-turbo-lnd/mock",
           platform,
         );
-      }
-
-      if (platform === "windows" && moduleName === "react-native-drawer-layout") {
-        return {
-          filePath: path.resolve(__dirname, "src/shims/react-native-drawer-layout.windows.tsx"),
-          type: "sourceFile",
-        };
       }
 
       if (platform === "windows" && moduleName === "react-native-fs") {

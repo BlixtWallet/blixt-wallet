@@ -63,6 +63,7 @@ _Use_decl_annotations_ int CALLBACK WinMain(HINSTANCE instance, HINSTANCE, PSTR 
 
   // Configure the initial InstanceSettings for the app's ReactNativeHost
   auto settings{reactNativeWin32App.ReactNativeHost().InstanceSettings()};
+  winrt::Microsoft::ReactNative::HttpSettings::SetDefaultUserAgent(settings, L"BlixtWallet/0.9.0");
   // Register any autolinked native modules
   RegisterAutolinkedNativeModulePackages(settings.PackageProviders());
   // Register any native modules defined within this app project
