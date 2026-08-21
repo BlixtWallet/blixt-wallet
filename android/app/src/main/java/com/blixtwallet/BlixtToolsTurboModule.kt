@@ -14,8 +14,6 @@ import com.facebook.react.bridge.Promise
 import com.facebook.react.bridge.ReactApplicationContext
 import com.hypertrack.hyperlog.HyperLog
 import com.jakewharton.processphoenix.ProcessPhoenix
-import com.reactnativecommunity.asyncstorage.AsyncLocalStorageUtil
-import com.reactnativecommunity.asyncstorage.ReactDatabaseSupplier
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileInputStream
@@ -30,10 +28,20 @@ import java.text.SimpleDateFormat
 import java.util.Arrays
 import java.util.Date
 import java.util.HashMap
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
+import org.asyncstorage.legacy_storage.LegacyStorageModule
 
 class BlixtToolsTurboModule(reactContext: ReactApplicationContext) :
   NativeBlixtToolsSpec(reactContext) {
   private var logObserver: FileObserver? = null
+  private val asyncStorage by lazy {
+    LegacyStorageModule.getStorageInstance(reactApplicationContext)
+  }
+  private val asyncStorageScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   override fun getName() = NAME
 
@@ -251,13 +259,21 @@ class BlixtToolsTurboModule(reactContext: ReactApplicationContext) :
   }
 
   override fun getTorEnabled(promise: Promise) {
-    val db = ReactDatabaseSupplier.getInstance(reactApplicationContext).get()
-    val torEnabled = AsyncLocalStorageUtil.getItemImpl(db, "torEnabled")
-    if (torEnabled != null) {
-      promise.resolve(torEnabled == "true")
-      return
+    asyncStorageScope.launch {
+      try {
+        val torEnabled = asyncStorage
+          .getValues(listOf("torEnabled"))
+          .firstOrNull()
+          ?.value
+        if (torEnabled != null) {
+          promise.resolve(torEnabled == "true")
+        } else {
+          promise.reject("ASYNC_STORAGE_ERROR", "Could not find torEnabled")
+        }
+      } catch (e: Exception) {
+        promise.reject("ASYNC_STORAGE_ERROR", "Could not read torEnabled", e)
+      }
     }
-    promise.reject(Exception(""))
   }
 
   override fun DEBUG_deleteSpeedloaderLastrunFile(promise: Promise) {
@@ -559,6 +575,11 @@ class BlixtToolsTurboModule(reactContext: ReactApplicationContext) :
     } catch (_: Exception) {
       null
     }
+  }
+
+  override fun invalidate() {
+    asyncStorageScope.cancel()
+    super.invalidate()
   }
 
   companion object {

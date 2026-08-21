@@ -1,0 +1,16 @@
+node_modules/
+.yarn/
+.webpack/
+out/
+android/
+ios/
+macos/
+proto/
+patches/
+web/dist/
+*.lock
+*.log
+coverage/
+build/
+dist/
+.git/

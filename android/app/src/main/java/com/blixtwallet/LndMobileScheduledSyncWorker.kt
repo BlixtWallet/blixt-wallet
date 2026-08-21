@@ -21,8 +21,6 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import com.google.protobuf.ByteString
 import com.oblador.keychain.KeychainModule
-import com.reactnativecommunity.asyncstorage.AsyncLocalStorageUtil
-import com.reactnativecommunity.asyncstorage.ReactDatabaseSupplier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -32,6 +30,8 @@ import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resumeWithException
 import org.json.JSONArray
 import org.json.JSONObject
+import org.asyncstorage.legacy_storage.Entry
+import org.asyncstorage.legacy_storage.LegacyStorageModule
 import java.util.UUID
 
 private const val TAG = "LndMobileScheduledSyncWorker"
@@ -70,23 +70,24 @@ class LndMobileScheduledSyncWorker(
   private val stateChannel = Channel<lnrpc.Stateservice.WalletState>(Channel.UNLIMITED)
   private val workId = UUID.randomUUID().toString()  // Unique identifier for this work instance
   private val startTime = System.currentTimeMillis() // Track when work starts
+  private val asyncStorage by lazy {
+    LegacyStorageModule.getStorageInstance(applicationContext)
+  }
 
   // Creates a new sync work record with IN_PROGRESS status
   // Call this at the start of the job
-  private fun createSyncWorkRecord() {
+  private suspend fun createSyncWorkRecord() {
     Log.d(TAG, "createSyncWorkRecord start")
     try {
       val newRecord = SyncWorkRecord(workId, startTime, 0, SyncResult.IN_PROGRESS, null)
-      val db = ReactDatabaseSupplier.getInstance(applicationContext).get()
-
       // Get existing records
-      val existingJson = AsyncLocalStorageUtil.getItemImpl(db, SYNC_WORK_KEY) ?: "[]"
+      val existingJson = getAsyncStorageItem(SYNC_WORK_KEY) ?: "[]"
       val records = parseRecords(existingJson)
 
       // Add new record and limit to 200 most recent
       val updatedRecords = (records + newRecord).takeLast(200)
 
-      saveRecordsToDb(db, updatedRecords)
+      saveRecordsToStorage(updatedRecords)
     } catch (e: Exception) {
       Log.e(TAG, "Failed to create sync work record", e)
     }
@@ -95,14 +96,12 @@ class LndMobileScheduledSyncWorker(
 
   // Updates an existing sync work record by workId (UUID)
   // Call this when the job finishes
-  private fun updateSyncWorkRecord(result: SyncResult, errorMessage: String? = null) {
+  private suspend fun updateSyncWorkRecord(result: SyncResult, errorMessage: String? = null) {
     Log.d(TAG, "updateSyncWorkRecord start: $result")
     try {
       val duration = System.currentTimeMillis() - startTime
-      val db = ReactDatabaseSupplier.getInstance(applicationContext).get()
-
       // Get existing records
-      val existingJson = AsyncLocalStorageUtil.getItemImpl(db, SYNC_WORK_KEY) ?: "[]"
+      val existingJson = getAsyncStorageItem(SYNC_WORK_KEY) ?: "[]"
       val records = parseRecords(existingJson)
 
       // Find and update the record with matching workId
@@ -114,7 +113,7 @@ class LndMobileScheduledSyncWorker(
         }
       }
 
-      saveRecordsToDb(db, updatedRecords)
+      saveRecordsToStorage(updatedRecords)
     } catch (e: Exception) {
       Log.e(TAG, "Failed to update sync work record", e)
     }
@@ -142,7 +141,7 @@ class LndMobileScheduledSyncWorker(
     }
   }
 
-  private fun saveRecordsToDb(db: android.database.sqlite.SQLiteDatabase, records: List<SyncWorkRecord>) {
+  private suspend fun saveRecordsToStorage(records: List<SyncWorkRecord>) {
     // Convert to JSON array
     val jsonArray = JSONArray().apply {
       records.forEach { record ->
@@ -156,20 +155,11 @@ class LndMobileScheduledSyncWorker(
       }
     }
 
-    // Save back to database
-    val sql = "INSERT OR REPLACE INTO catalystLocalStorage VALUES (?, ?);"
-    db.compileStatement(sql).use { statement ->
-      db.beginTransaction()
-      try {
-        statement.bindString(1, SYNC_WORK_KEY)
-        statement.bindString(2, jsonArray.toString())
-        statement.execute()
-        db.setTransactionSuccessful()
-      } finally {
-        db.endTransaction()
-      }
-    }
+    asyncStorage.setValues(listOf(Entry(SYNC_WORK_KEY, jsonArray.toString())))
   }
+
+  private suspend fun getAsyncStorageItem(key: String): String? =
+    asyncStorage.getValues(listOf(key)).firstOrNull()?.value
 
   override suspend fun doWork(): Result {
     try {
@@ -699,9 +689,8 @@ class LndMobileScheduledSyncWorker(
     }
   }
 
-  private fun getTorEnabled(): Boolean {
-    val db = ReactDatabaseSupplier.getInstance(applicationContext).get()
-    val torEnabled = AsyncLocalStorageUtil.getItemImpl(db, "torEnabled")
+  private suspend fun getTorEnabled(): Boolean {
+    val torEnabled = getAsyncStorageItem("torEnabled")
     if (torEnabled != null) {
       return torEnabled == "true"
     }
@@ -709,9 +698,8 @@ class LndMobileScheduledSyncWorker(
     return false
   }
 
-  private fun getPersistentServicesEnabled(): Boolean {
-    val db = ReactDatabaseSupplier.getInstance(applicationContext).get()
-    val persistentServicesEnabled = AsyncLocalStorageUtil.getItemImpl(db, "persistentServicesEnabled")
+  private suspend fun getPersistentServicesEnabled(): Boolean {
+    val persistentServicesEnabled = getAsyncStorageItem("persistentServicesEnabled")
     if (persistentServicesEnabled != null) {
       return persistentServicesEnabled == "true"
     }

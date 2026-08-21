@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { InteractionManager, StyleProp, View, ViewStyle } from "react-native";
-import { BrowserQRCodeReader, IScannerControls } from "@zxing/browser";
+import { BrowserQRCodeReader, type IScannerControls } from "@zxing/browser";
 import Container from "./Container";
 import { blixtTheme } from "../native-base-theme/variables/commonColor";
 
@@ -11,7 +11,7 @@ const SCANNER_OPTIONS = {
 
 export interface ICamera {
   active?: boolean;
-  children?: ReactNode | JSX.Element;
+  children?: ReactNode;
   cameraType?: "front" | "back";
   onRead?: (text: string) => void;
   onNotAuthorized?: () => void;
@@ -102,7 +102,11 @@ export default function CameraComponent({
       return;
     }
 
-    if (!videoRef.current || typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+    if (
+      !videoRef.current ||
+      typeof navigator === "undefined" ||
+      !navigator.mediaDevices?.getUserMedia
+    ) {
       markCameraUnavailable();
       return;
     }

@@ -165,12 +165,7 @@ export default defineConfig(({ command, mode }) => {
         },
       },
 
-      react({
-        babel: {
-          babelrc: false,
-          configFile: false,
-        },
-      }),
+      react(),
 
       nodePolyfills({
         protocolImports: true,
@@ -416,6 +411,21 @@ export default defineConfig(({ command, mode }) => {
         "react-native-web-webview",
       ],
       rolldownOptions: {
+        resolve: {
+          extensions: [
+            ...platformExtensions,
+            ".web.tsx",
+            ".web.ts",
+            ".tsx",
+            ".ts",
+            ".web.jsx",
+            ".web.js",
+            ".jsx",
+            ".js",
+            ".css",
+            ".json",
+          ],
+        },
         transform: {
           define: {
             global: "globalThis",

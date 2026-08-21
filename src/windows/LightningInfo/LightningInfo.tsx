@@ -2,7 +2,6 @@ import React, { useEffect, useLayoutEffect } from "react";
 import { StyleSheet, View } from "react-native";
 import { Icon, H1, Fab, Spinner } from "native-base";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { FlashList } from "@shopify/flash-list";
 
 import { LightningInfoStackParamList } from "./index";
 import { useStoreState, useStoreActions } from "../../state/store";
@@ -20,11 +19,17 @@ import {
   Channel,
   PendingChannelsResponse_ClosedChannel,
   PendingChannelsResponse_ForceClosedChannel,
-  PendingChannelsResponse_PendingChannel,
   PendingChannelsResponse_PendingOpenChannel,
   PendingChannelsResponse_WaitingCloseChannel,
 } from "react-native-turbo-lnd/protos/lightning_pb";
-import { LegendList } from "@legendapp/list";
+import { LegendList } from "@legendapp/list/react-native";
+
+type LightningChannelListItem =
+  | (PendingChannelsResponse_PendingOpenChannel & { type: "pendingOpen" })
+  | (PendingChannelsResponse_ClosedChannel & { type: "pendingClose" })
+  | (PendingChannelsResponse_ForceClosedChannel & { type: "pendingForceClose" })
+  | (PendingChannelsResponse_WaitingCloseChannel & { type: "waitingForClose" })
+  | (Channel & { type: "open" });
 
 interface ILightningInfoProps {
   navigation: StackNavigationProp<LightningInfoStackParamList, "LightningInfo">;
@@ -86,21 +91,24 @@ export default function LightningInfo({ navigation }: ILightningInfoProps) {
     // return accumulator.add(channel.localBalance!.sub(channel.localChanReserveSat!));
   }, BigInt(0));
 
-  const channelsArr = [
-    ...pendingOpenChannels.map((pendingChannel, i) => ({ ...pendingChannel, type: "pendingOpen" })),
-    ...pendingClosingChannels.map((pendingChannel, i) => ({
+  const channelsArr: LightningChannelListItem[] = [
+    ...pendingOpenChannels.map((pendingChannel) => ({
       ...pendingChannel,
-      type: "pendingClose",
+      type: "pendingOpen" as const,
     })),
-    ...pendingForceClosingChannels.map((pendingChannel, i) => ({
+    ...pendingClosingChannels.map((pendingChannel) => ({
       ...pendingChannel,
-      type: "pendingForceClose",
+      type: "pendingClose" as const,
     })),
-    ...waitingCloseChannels.map((pendingChannel, i) => ({
+    ...pendingForceClosingChannels.map((pendingChannel) => ({
       ...pendingChannel,
-      type: "waitingForClose",
+      type: "pendingForceClose" as const,
     })),
-    ...channels.map((channel, i) => ({ ...channel, type: "open" })),
+    ...waitingCloseChannels.map((pendingChannel) => ({
+      ...pendingChannel,
+      type: "waitingForClose" as const,
+    })),
+    ...channels.map((channel) => ({ ...channel, type: "open" as const })),
   ];
 
   const onPressBalance = async () => {

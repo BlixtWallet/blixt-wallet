@@ -3,6 +3,7 @@ import { StyleProvider, Root } from "native-base";
 import { DefaultTheme, NavigationContainer, Theme } from "@react-navigation/native";
 import { StoreProvider } from "easy-peasy";
 import { MenuProvider } from "react-native-popup-menu";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
 import Main from "./Main";
@@ -38,22 +39,26 @@ export default function App() {
   };
 
   return (
-    <KeyboardProvider>
-      <StoreProvider store={store}>
-        <StyleProvider.Context.Provider value={{ theme: StyleProvider.fixTheme(getTheme(theme)) }}>
-          <NavigationContainer
-            theme={navigatorTheme}
-            documentTitle={{ enabled: false }}
-            ref={navigator}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <KeyboardProvider>
+        <StoreProvider store={store}>
+          <StyleProvider.Context.Provider
+            value={{ theme: StyleProvider.fixTheme(getTheme(theme)) }}
           >
-            <MenuProvider>
-              <Root>
-                {debug ? <DEV_Commands continueCallback={() => setDebug(false)} /> : <Main />}
-              </Root>
-            </MenuProvider>
-          </NavigationContainer>
-        </StyleProvider.Context.Provider>
-      </StoreProvider>
-    </KeyboardProvider>
+            <NavigationContainer
+              theme={navigatorTheme}
+              documentTitle={{ enabled: false }}
+              ref={navigator}
+            >
+              <MenuProvider>
+                <Root>
+                  {debug ? <DEV_Commands continueCallback={() => setDebug(false)} /> : <Main />}
+                </Root>
+              </MenuProvider>
+            </NavigationContainer>
+          </StyleProvider.Context.Provider>
+        </StoreProvider>
+      </KeyboardProvider>
+    </GestureHandlerRootView>
   );
 }

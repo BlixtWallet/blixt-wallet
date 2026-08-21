@@ -6,11 +6,14 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import { getStatusBarHeight } from "react-native-status-bar-height";
 import {
   Camera,
-  useCodeScanner,
-  CameraPosition,
+  type TargetCameraPosition,
   useCameraDevice,
   useCameraPermission,
 } from "react-native-vision-camera";
+import {
+  type TargetBarcodeFormat,
+  useBarcodeScannerOutput,
+} from "react-native-vision-camera-barcode-scanner";
 
 import BarcodeMask from "../../components/BarCodeMask";
 import { SendStackParamList } from "./index";
@@ -24,13 +27,15 @@ import useEveluateLightningCode from "../../hooks/useEvaluateLightningCode";
 import { toast } from "../../utils";
 import Container from "../../components/Container";
 
+const QR_CODE_FORMATS: TargetBarcodeFormat[] = ["qr-code"];
+
 interface ISendCameraProps {
   bolt11Invoice?: string;
   navigation: StackNavigationProp<SendStackParamList, "SendCamera">;
 }
 export default function SendCamera({ navigation }: ISendCameraProps) {
   const rpcReady = useStoreState((store) => store.lightning.rpcReady);
-  const [cameraType, setCameraType] = useState<CameraPosition>("back");
+  const [cameraType, setCameraType] = useState<TargetCameraPosition>("back");
   const device = useCameraDevice(cameraType);
   const [scanning, setScanning] = useState(true);
   const [cameraActive, setCameraActive] = useState(true);
@@ -38,17 +43,19 @@ export default function SendCamera({ navigation }: ISendCameraProps) {
   const { hasPermission, requestPermission } = useCameraPermission();
   const promptLightningAddress = usePromptLightningAddress();
   const evaluateLightningCode = useEveluateLightningCode();
-  const codeScanner = useCodeScanner({
-    codeTypes: ["qr"],
-    onCodeScanned: (codes) => {
-      if (codes.length > 0) {
-        if (scannedTexts.current[0] === codes[0].value) {
+  const barcodeScannerOutput = useBarcodeScannerOutput({
+    barcodeFormats: QR_CODE_FORMATS,
+    onBarcodeScanned: (barcodes) => {
+      const value = barcodes[0]?.rawValue;
+      if (value !== undefined) {
+        if (scannedTexts.current[0] === value) {
           return;
         }
-        scannedTexts.current.push(codes[0].value);
-        onBarCodeRead(codes[0].value ?? "");
+        scannedTexts.current.push(value);
+        onBarCodeRead(value);
       }
     },
+    onError: (error) => console.error("Failed to scan QR code", error),
   });
 
   useEffect(() => {
@@ -171,9 +178,9 @@ export default function SendCamera({ navigation }: ISendCameraProps) {
     <Container>
       <Camera
         style={StyleSheet.absoluteFill}
-        codeScanner={codeScanner}
         device={device}
         isActive={cameraActive}
+        outputs={[barcodeScannerOutput]}
       />
       <View style={StyleSheet.absoluteFill}>
         <BarcodeMask

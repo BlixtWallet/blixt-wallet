@@ -19,7 +19,7 @@ import { DrawerActions, useNavigation, NavigationProp } from "@react-navigation/
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { createBottomTabNavigator, BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { getStatusBarHeight } from "react-native-status-bar-height";
-import { LegendList } from "@legendapp/list";
+import { LegendList } from "@legendapp/list/react-native";
 import BigNumber from "bignumber.js";
 
 import { RootStackParamList } from "../Main";

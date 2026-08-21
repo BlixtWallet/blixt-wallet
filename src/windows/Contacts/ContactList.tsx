@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useState } from "react";
 import { StyleSheet, StatusBar } from "react-native";
 import { Icon, Text, Header, Item } from "native-base";
-import { LegendList } from "@legendapp/list";
+import { LegendList } from "@legendapp/list/react-native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import Color from "color";
 

@@ -295,7 +295,10 @@ export const setupApp = async () => {
     setItemObject<boolean>(StorageItem.googleDriveBackupEnabled, false),
     setItemObject<boolean>(StorageItem.preferFiat, false),
     setItemObject<boolean>(StorageItem.transactionGeolocationEnabled, false),
-    setItem<keyof typeof MapStyle>(StorageItem.transactionGeolocationMapStyle, "darkMode"),
+    setItem(
+      StorageItem.transactionGeolocationMapStyle,
+      "darkMode" satisfies keyof typeof MapStyle,
+    ),
     setItem(StorageItem.onchainExplorer, "mempool"),
     setItemObject<boolean>(StorageItem.multiPathPaymentsEnabled, true),
     setItem(StorageItem.onboardingState, "SEND_ONCHAIN"),

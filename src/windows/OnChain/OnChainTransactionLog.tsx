@@ -1,7 +1,7 @@
 import React, { useEffect, useLayoutEffect } from "react";
 import { Container, Icon } from "native-base";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { LegendList } from "@legendapp/list";
+import { LegendList } from "@legendapp/list/react-native";
 
 import { OnChainStackParamList } from "./index";
 import OnChainTransactionItem from "../../components/OnChainTransactionItem";
